@@ -5,6 +5,56 @@ from ConnectionGenome import *
 from NodeGenome import *
 
 
+def getAverageWeightDifference(g1, g2):
+    matchingGenes = 0
+    weightDifference = 0
+
+    connectionOneKeys = g1.connections.keys().sort()
+    connectionTwoKeys = g2.connections.keys().sort()
+    highestInnovation = max(connectionOneKeys[-1], connectionTwoKeys[-1])
+
+    for i in range(0, highestInnovation + 1):
+        if g1.connections[i] is not None and g2.connections[i] is not None:
+            matchingGenes += 1
+            weightDifference += abs(g1.connections[i].weight - g2.connections[i].weight)
+
+    return weightDifference / matchingGenes
+
+
+def getExcessDisjointConnections(g1, g2, count, i, b1, b2):
+    if g1.connections[i] is None and b1 and g2.connections[i] is not None:
+        count += 1
+    elif g2.connections[i] is None and b2 and g1.connections[i] is not None:
+        count += 1
+
+    return count
+
+
+def getDisjointExcessNodes(g1, g2, count, i, b1, b2):
+    if g1.nodes[i] is None and b1 and g2.nodes[i] is not None:
+        count += 1
+    elif g2.nodes[i] is None and b2 and g1.nodes[i] is not None:
+        count += 1
+
+    return count
+
+
+def crossover(parent1, parent2):
+    child = Genome()
+
+    for node in parent1.nodes.values():
+        child.addNode(node)
+
+    for p1Connection in parent1.connections.values():
+        if p1Connection.innovationNo in parent2.connections.keys():
+            childConnection = p1Connection.copy if bool(random.getrandbits(1)) else parent2.connections[
+                p1Connection.innovationNo]
+            child.addConnection(childConnection)
+        else:
+            child.addConnection(p1Connection.copy)
+
+    return child
+
 
 class Genome:
     def __init__(self, starter=None):
@@ -66,8 +116,41 @@ class Genome:
         newNode = NodeGenome(NodeType.HIDDEN, nodeInnovation.getInnovationNo())
 
         connection1 = ConnectionGenome(node1.id, newNode.id, 1, True, connectionInnovation.getInnovationNo())
-        connection2 = ConnectionGenome(newNode.id, node2.id, connection.weight, True, connectionInnovation.getInnovationNo())
+        connection2 = ConnectionGenome(newNode.id, node2.id, connection.weight, True,
+                                       connectionInnovation.getInnovationNo())
 
         self.nodes[newNode.id] = newNode
         self.connections[connection1.innovationNo] = connection1
         self.connections[connection2.innovationNo] = connection2
+
+    def compatibilityDistance(self, genome1, genome2, c1, c2, c3):
+        excessDisjoint = self.countExcessDisjoint(genome1, genome2)
+        avWeigtDifference = getAverageWeightDifference(genome1, genome2)
+
+        return c1 * excessDisjoint[0] + c2 * excessDisjoint[1] + c3 * avWeigtDifference
+
+    def countExcessDisjoint(self, genome1, genome2):
+        excessGenes = 0
+        disjointGenes = 0
+
+        nodeOneKeys = genome1.nodes.keys().sort()
+        nodeTwoKeys = genome2.nodes.keys().sort()
+        highestInnovation = max(nodeOneKeys[-1], nodeTwoKeys[-1])
+
+        for i in range(0, highestInnovation + 1):
+            excessGenes = getDisjointExcessNodes(genome1, genome2, excessGenes, i, nodeOneKeys[1] < i,
+                                                 nodeTwoKeys[-1] < i)
+            disjointGenes = getDisjointExcessNodes(genome1, genome2, disjointGenes, i, nodeOneKeys[1] > i,
+                                                   nodeTwoKeys[-1] > i)
+
+        connectionOneKeys = genome1.connections.keys().sort()
+        connectionTwoKeys = genome2.connections.keys().sort()
+        highestInnovation = max(connectionOneKeys[-1], connectionTwoKeys[-1])
+
+        for i in range(0, highestInnovation + 1):
+            excessGenes = getExcessDisjointConnections(genome1, genome2, excessGenes, i, connectionOneKeys[1] < i,
+                                                       connectionTwoKeys[-1] < i)
+            disjointGenes = getExcessDisjointConnections(genome1, genome2, disjointGenes, i,
+                                                         connectionOneKeys[1] > i, connectionTwoKeys[-1] > i)
+
+        return [excessGenes, disjointGenes]
