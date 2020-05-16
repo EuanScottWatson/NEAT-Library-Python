@@ -32,6 +32,12 @@ class Neuron:
     def sigmoid(self, x):
         return 1 / (1 + math.e**(-1 * x))
 
+    def addInputValue(self, input):
+        for i in range(len(self.inputValues)):
+            if self.inputValues[i] is None:
+                self.inputValues[i] = input
+                break
+
     def reset(self):
         self.finalOutput = 0
         self.inputValues = [None for _ in range(len(self.inputValues))]
