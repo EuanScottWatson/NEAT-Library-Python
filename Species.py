@@ -16,3 +16,6 @@ class Species:
         self.population = []
         self.fitnessPairs = []
         self.totalFitness = 0
+
+    def sortPairs(self):
+        self.fitnessPairs.sort(key=lambda x: x.fitness, reverse=True)
