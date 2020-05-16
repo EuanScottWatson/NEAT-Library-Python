@@ -30,7 +30,7 @@ class Neuron:
         self.finalOutput = self.sigmoid(outputSum)
 
     def sigmoid(self, x):
-        return 1 / (1 + math.e**(-1 * x))
+        return 1 / (1 + math.e ** (-1 * x))
 
     def addInputValue(self, input):
         for i in range(len(self.inputValues)):

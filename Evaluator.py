@@ -22,7 +22,6 @@ def evaluateGenome():
 
 
 class Evaluator:
-
     def __init__(self, populationSize, starter, nodeInnovation, connectionInnovation):
         self.nodeInnovation = nodeInnovation
         self.connectionInnovation = connectionInnovation

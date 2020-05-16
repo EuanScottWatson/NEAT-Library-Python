@@ -66,9 +66,9 @@ def countExcessDisjoint(genome1, genome2):
 
     for i in range(0, highestInnovation + 1):
         excessGenes = getDisjointExcessNodes(genome1, genome2, excessGenes, i, nodeOneKeys[1] < i,
-                                                  nodeTwoKeys[-1] < i)
+                                             nodeTwoKeys[-1] < i)
         disjointGenes = getDisjointExcessNodes(genome1, genome2, disjointGenes, i, nodeOneKeys[1] > i,
-                                                    nodeTwoKeys[-1] > i)
+                                               nodeTwoKeys[-1] > i)
 
     connectionOneKeys = genome1.connections.keys().sort()
     connectionTwoKeys = genome2.connections.keys().sort()
@@ -76,9 +76,9 @@ def countExcessDisjoint(genome1, genome2):
 
     for i in range(0, highestInnovation + 1):
         excessGenes = getExcessDisjointConnections(genome1, genome2, excessGenes, i, connectionOneKeys[1] < i,
-                                                        connectionTwoKeys[-1] < i)
+                                                   connectionTwoKeys[-1] < i)
         disjointGenes = getExcessDisjointConnections(genome1, genome2, disjointGenes, i,
-                                                          connectionOneKeys[1] > i, connectionTwoKeys[-1] > i)
+                                                     connectionOneKeys[1] > i, connectionTwoKeys[-1] > i)
 
     return [excessGenes, disjointGenes]
 
